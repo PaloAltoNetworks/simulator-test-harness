@@ -1,0 +1,25 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: plan-gen-config
+data:
+  config.yaml: |
+    ---
+    name: {{ $.Values.depName }}
+    pus: {{ .Values.pusPerSimulator }}
+    pu-type: {{ .Values.puType }}
+    pu-meta: {{ .Values.puMeta }}
+    flows: {{ .Values.flowsPerPU }}
+    lifecycle:
+      pu-iterations: {{ .Values.puLife.puIter }}
+      pu-interval: {{ $.Values.puLife.puInterval }}s
+      pu-cleanup: {{ $.Values.puLife.puCleanup }}s
+      flow-iterations: {{ $.Values.puLife.flowIter }}
+      flow-interval: {{ $.Values.puLife.flowInterval }}s
+      dns-report-rate: {{ $.Values.puLife.dnsReportRate }}
+    jitter:
+      variance: {{ $.Values.jitter.variance }}%
+      pu-start: {{ $.Values.jitter.puStart }}s
+      pu-report: {{ $.Values.jitter.puReport }}s
+      flow-report: {{ $.Values.jitter.flowReport }}ms

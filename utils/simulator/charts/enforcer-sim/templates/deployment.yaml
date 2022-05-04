@@ -1,0 +1,135 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $.Values.depName }}
+  namespace:  {{ $.Values.k8sNS }}
+spec:
+  selector:
+    matchLabels:
+      nsim: simulator-{{ $.Values.enforcerTagPrefix }}
+      app: simulator
+  replicas: {{ $.Values.pods }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        nsim: simulator-{{ $.Values.enforcerTagPrefix }}
+        app: simulator
+      annotations:
+        "cluster-autoscaler.kubernetes.io/safe-to-evict": "true"
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              nsim: simulator-{{ $.Values.enforcerTagPrefix }}
+              app: simulator
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              nsim: simulator-{{ $.Values.enforcerTagPrefix }}
+              app: simulator
+      restartPolicy: Always
+      initContainers:
+      - name: plan-gen
+        image: {{$.Values.simulatorImage.name }}:{{ $.Values.simulatorImage.tag }}
+        imagePullPolicy: IfNotPresent
+        command:
+        - 'sh'
+        - '-c'
+        - |
+          for i in $(seq 0 {{ sub ($.Values.simulatorsPerPod | int) 1 }}); do
+            mkdir -p /plans/plan-${i}
+            plan-gen -config /config/config.yaml -output /plans/plan-${i}/plan.yaml
+           done
+        volumeMounts:
+        - mountPath: /plans
+          name: plans
+        - mountPath: /config
+          name: plan-config
+      containers:
+      {{- range $sim := until ($.Values.simulatorsPerPod | int) }}
+      - name: simulator-{{ $sim }}
+        image: {{ $.Values.image.name }}:{{ $.Values.image.tag }}
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "60Mi"
+            cpu: "10m"
+            ephemeral-storage: "2Gi"
+          limits:
+            ephemeral-storage: "4Gi"
+        env:
+        - name: ENFORCERD_TAG
+          value: "nsim={{ $.Values.enforcerTagPrefix }}-{{ $sim }} {{ $.Values.enforcerTag }}"
+        - name: ENFORCERD_APPCREDS
+          value: "/creds/aporeto.creds"
+        - name: ENFORCERD_LOG_LEVEL
+          value: {{ $.Values.log.level }}
+        - name: ENFORCERD_LOG_FORMAT
+          value: {{ $.Values.log.format }}
+        - name: ENFORCERD_SIMULATED_DATA_PLANE_PLAN
+          value: "/plan/plan.yaml"
+        - name: ENFORCERD_LOG_TO_CONSOLE
+          value: "{{ $.Values.log.toConsole }}"
+        - name: ENFORCERD_DISABLE_LOG_WRITE
+          value: "{{ $.Values.log.disableWrite }}"
+        - name: ENFORCERD_ENABLE_CONTAINERS
+          value: "true"
+        - name: ENFORCERD_HANDLE_API_OFFLINE
+          value: "{{ $.Values.enforcerOpts.handleOfflineAPI }}"
+        - name: ENFORCERD_POLICIES_SYNC_INTERVAL
+          value: "{{ $.Values.enforcerOpts.policiesSync }}"
+        - name: ENFORCERD_DYNAMIC_TAGS_SYNC_INTERVAL
+          value: "{{ $.Values.enforcerOpts.tagSync }}"
+        - name: ENFORCERD_CERTIFICATE_RENEWAL_INTERVAL
+          value: "{{ $.Values.enforcerOpts.certRenewal }}"
+        - name: ENFORCERD_PUS_SYNC_INTERVAL_JITTER
+          value: "{{ $.Values.enforcerJitters.puSync }}"
+        - name: ENFORCERD_PUS_FAILURE_RETRY_INTERVAL_JITTER
+          value: "{{ $.Values.enforcerJitters.puFailureRetry }}"
+        - name: ENFORCERD_PUS_STATUS_UPDATE_RETRY_INTERVAL_JITTER
+          value: "{{ $.Values.enforcerJitters.puSync }}"
+        - name: ENFORCERD_POLICIES_SYNC_INTERVAL_JITTER
+          value: "{{ $.Values.enforcerJitters.policiesSync }}"
+        - name: ENFORCERD_API_RECONNECT_INTERVAL_JITTER
+          value: "{{ $.Values.enforcerJitters.apiReconnect }}"
+        - name: ENFORCERD_FLOW_REPORTING_DISPATCH_INTERVAL_JITTER
+          value: "{{ $.Values.enforcerJitters.flowReportDispatch }}"
+        - name: ENFORCERD_CERTIFICATE_RENEWAL_INTERVAL_JITTER
+          value: "{{ $.Values.enforcerJitters.certRenewal }}"
+        - name: ENFORCERD_DYNAMIC_TAGS_SYNC_INTERVAL_JITTER
+          value: "{{ $.Values.enforcerJitters.tagSync }}"
+        volumeMounts:
+        - mountPath: /creds
+          name: creds
+          readOnly: true
+        - mountPath: /var/lib/prisma-enforcer
+          name: working-dir-{{ $sim }}
+          readOnly: false
+        - mountPath: /plan
+          name: plans
+          readOnly: true
+          subPath: plan-{{ $sim }}
+      {{- end }}
+      volumes:
+      - name: creds
+        secret:
+          secretName: {{ .Values.k8sSecret }}
+      - name: plans
+        emptyDir: {}
+      {{- range $sim := until ($.Values.simulatorsPerPod | int) }}
+      - name: working-dir-{{ $sim }}
+        emptyDir: {}
+      {{- end }}
+      - name: plan-config
+        configMap:
+          name: plan-gen-config
+      nodeSelector:
+        pods: workload

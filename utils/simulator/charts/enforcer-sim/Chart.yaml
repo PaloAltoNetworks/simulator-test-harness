@@ -1,0 +1,5 @@
+---
+apiVersion: v1
+name: enforcer-sim
+description: Aporeto enforcer simulator
+version: "0.7.1"

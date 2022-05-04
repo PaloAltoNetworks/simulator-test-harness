@@ -1,0 +1,19 @@
+---
+name: ""            # The name used as prefix for all identifiers
+pus: 10             # The number of pus per enforcer
+pu-type: Docker     # The type of PUs (a gaia.ProcessingUnitTypeValue or "random")
+pu-meta:            # The external tags for each PU. Must all start with "@". If not specified,
+- "@simulated=true" # defaults (unique per PU) will be used.
+flows: 10           # The number of flows per pu
+lifecycle:
+  pu-iterations: "1"    # Number of iterations of PU lifecycles (can be "infinite")
+  pu-interval: 30s      # Interval between each PU lifecycle iteration
+  pu-cleanup: 1s        # Interval to delay PU cleanup for each lifecycle
+  flow-iterations: "12" # Number of flow iterations for each PU lifecycle (can be "infinite")
+  flow-interval: 1m     # Interval between each flow batch
+  dns-report-rate: 1   # DNS reports per PU per minute to generate
+jitter:
+  variance: 20%      # jitter variance (percentage) for each value
+  pu-start: 10s      # jitter for PU start
+  pu-report: 1s      # jitter for PU report
+  flow-report: 500ms # jitter for flow report

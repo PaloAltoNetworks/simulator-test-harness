@@ -1,0 +1,84 @@
+# number of pods
+pods: 1
+
+# number of simulators per pod
+simulatorsPerPod: 10
+
+# number of PUs per simulator
+pusPerSimulator: 20
+
+# the type of PUs (a gaia.ProcessingUnitTypeValue or "random")
+puType: random
+
+# list of external tags for each PU (must all start with "@"). If null, plan-gen defaults will be
+# used.
+puMeta: null
+
+# number of flows per PU
+flowsPerPU: 50
+
+# Example values for PU lifecycle. These set of values will run each simulator for one hour.
+puLife:
+  puIter: "1"
+  puInterval: 30       # value in seconds
+  puCleanup: 1         # value in seconds
+  flowIter: "12"       # number of flow iterations
+  flowInterval: 60     # value in seconds
+  dnsReportRate: 1     # dns reports per PU per minute
+
+# PU jitter
+jitter:
+  variance: 20         # value in percentage (%)
+  puStart: 10          # value in seconds
+  puReport: 1          # value in seconds
+  flowReport: 500      # value in miliseconds
+
+# enforcer image configuration
+image:
+  # here needs a full name of the image including registry and orgnization
+  name: ""
+  tag: ""
+
+# plan generation image configuration
+simulatorImage:
+  # here needs a full name of the image including registry and orgnization
+  name: ""
+  tag: ""
+
+# log level
+log:
+  level: info
+  format: console
+  toConsole: 1
+  disableWrite: false
+
+# Enforcer configuration flags.
+enforcerOpts:
+  policiesSync: "20m"
+  certRenewal: "96h"
+  tagSync: "1m"
+  handleOfflineAPI: false
+
+# Enforcer jitter configuration
+enforcerJitters:
+  puSync: "20%"
+  puFailureRetry: "20%"
+  puStatusUpdateRetry: "20%"
+  policiesSync: "20%"
+  apiReconnect: "20%"
+  flowReportDispatch: "20%"
+  certRenewal: "20%"
+  tagSync: "20%"
+
+# By default 2 tags are added to enforcer (simulator) with the current charts.
+# The first one has enforcerTagPrefix as prefix, as nsim=<prefix>-$i where i ranges
+# through pods * simulatorsPerPod.
+enforcerTagPrefix: simulator
+# The second is the enforcerTag, it is fixed for all enforcers and should
+# always be key=value.
+enforcerTag: simbase=simulator
+
+# Do not edit these parameters, exclusively used by automation. Value set here will be ignored.
+depName: ""
+k8sNS: ""
+k8sSecret: ""
