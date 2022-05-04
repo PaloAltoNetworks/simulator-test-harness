@@ -1,0 +1,31 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+.terraform
+key
+key.pub
+*.code-workspace
+.DS_Store
+.vscode
+*.p12
+
+# Any kind of logs
+*.log
+
+artifacts
+docker/artifacts
+docker/enforcer-sim-*.tgz
+docker/**/utils
+docker/**/charts
+utils/simulator/simulator
+utils/simulator/policies
+

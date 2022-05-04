@@ -271,6 +271,6 @@ This guidance allowed us pick node sizes & images based on test requirements.
 ## Simulator plans
 
 The plans for the simulators are generated at runtime by the
-[`plan-gen`](https://github.com/aporeto-inc/benchmark-suite/tree/master/utils/plan-gen)
+[`plan-gen`](https://github.com/aporeto-inc/simulator-test-harness/tree/master/utils/plan-gen)
 utility of the benchmark suite. This runs in an init container per pod, producing the plans for
 that pod's simulators. Refer to that for further details.

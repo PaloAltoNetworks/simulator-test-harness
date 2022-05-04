@@ -5,9 +5,9 @@ import (
 	"math"
 	"path"
 
-	"go.aporeto.io/benchmark-suite/common"
-	"go.aporeto.io/benchmark-suite/libs/testsetup"
-	"go.aporeto.io/benchmark-suite/utils/simulator/internal"
+	"go.aporeto.io/simulator-test-harness/common"
+	"go.aporeto.io/simulator-test-harness/libs/testsetup"
+	"go.aporeto.io/simulator-test-harness/utils/simulator/internal"
 )
 
 func main() {

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"go.aporeto.io/benchmark-suite/common"
 	"go.aporeto.io/gaia"
+	"go.aporeto.io/simulator-test-harness/common"
 )
 
 var protocols = []int{

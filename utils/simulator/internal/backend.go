@@ -5,10 +5,10 @@ import (
 	"os"
 	"path"
 
-	"go.aporeto.io/benchmark-suite/common"
-	"go.aporeto.io/benchmark-suite/libs/backend"
-	"go.aporeto.io/benchmark-suite/libs/testsetup"
 	midgardclient "go.aporeto.io/midgard-lib/client"
+	"go.aporeto.io/simulator-test-harness/common"
+	"go.aporeto.io/simulator-test-harness/libs/backend"
+	"go.aporeto.io/simulator-test-harness/libs/testsetup"
 )
 
 // SimNSTree creates, given a "namespace", the "namespace" base and a flat
@@ -25,7 +25,7 @@ func SimNSTree(mconf *testsetup.Client, namespace string,
 			Name: fmt.Sprintf("%s-%d", path.Base(namespace), i),
 			Tags: []string{
 				fmt.Sprintf("child=%v", i),
-				"creator=benchmark-suite",
+				"creator=simulator-test-harness",
 			},
 		})
 	}
@@ -33,7 +33,7 @@ func SimNSTree(mconf *testsetup.Client, namespace string,
 	nstree := testsetup.NSTree{
 		Name: path.Base(namespace),
 		Tags: []string{
-			"creator=benchmark-suite",
+			"creator=simulator-test-harness",
 		},
 		Children: children,
 	}
@@ -61,7 +61,7 @@ func SimMappingPolicy(c *testsetup.Client, tag, srcNamespace,
 		srcNamespace,
 		[]string{
 			"type=enforcer",
-			"creator=benchmark-suite",
+			"creator=simulator-test-harness",
 		},
 		[][]string{
 			{

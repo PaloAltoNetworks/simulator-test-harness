@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"go.aporeto.io/benchmark-suite/common"
+	"go.aporeto.io/simulator-test-harness/common"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
